@@ -393,6 +393,26 @@ const SpeakZApp = () => {
     addNotification('Défi Speed commencé ! Bonne chance !', 'info');
   };
 
+  const submitSpeedAnswer = (isCorrectAnswer, userAnswer) => {
+    if (isCorrectAnswer === userAnswer) {
+      setSpeedCorrectAnswers(prev => prev + 1);
+      addNotification('Correct !', 'success');
+    } else {
+      addNotification('Incorrect !', 'error');
+    }
+    
+    // Vérifier si tous les défis sont complétés
+    const totalCorrectAnswers = speedCorrectAnswers + (isCorrectAnswer === userAnswer ? 1 : 0);
+    const totalQuestions = dailyChallenge.questions.filter(q => q.isCorrect).length;
+    
+    if (totalCorrectAnswers >= totalQuestions) {
+      setTimeout(() => {
+        setChallengeTimer(false);
+        completeChallenge(dailyChallenge.id, dailyChallenge.points);
+      }, 500);
+    }
+  };
+
   const addPost = () => {
     if (!newPost.trim()) return;
     
@@ -1840,3 +1860,82 @@ const SpeakZApp = () => {
                               <div style={{ backgroundColor: '#ecfdf5', borderRadius: '8px', padding: '8px', display: 'inline-block' }}>
                                 <span style={{ color: '#166534', fontWeight: 'bold' }}>
                                   Bonnes réponses : {speedCorrectAnswers}/{dailyChallenge.questions.length}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {!challengeTimer ? (
+                          <button
+                            onClick={startSpeedChallenge}
+                            style={{
+                              width: '100%',
+                              backgroundColor: '#ef4444',
+                              color: 'white',
+                              padding: '12px',
+                              borderRadius: '8px',
+                              fontWeight: 'bold',
+                              border: 'none',
+                              cursor: 'pointer',
+                              transition: 'background-color 0.3s',
+                              fontSize: '16px'
+                            }}
+                          >
+                            Commencer le défi chronométré
+                          </button>
+                        ) : (
+                          dailyChallenge.questions.map((item, index) => (
+                            <div key={index} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px' }}>
+                              <h4 style={{ fontWeight: 'bold', marginBottom: '8px' }}>"{item.word}" = {item.definition}</h4>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => submitSpeedAnswer(item.isCorrect, true)}
+                                  style={{
+                                    flex: 1,
+                                    backgroundColor: '#10b981',
+                                    color: 'white',
+                                    padding: '8px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Vrai
+                                </button>
+                                <button
+                                  onClick={() => submitSpeedAnswer(item.isCorrect, false)}
+                                  style={{
+                                    flex: 1,
+                                    backgroundColor: '#ef4444',
+                                    color: 'white',
+                                    padding: '8px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Faux
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SpeakZApp;
